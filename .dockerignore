@@ -1,0 +1,33 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build output
+.next
+out
+dist
+
+# Environment (never bake secrets into image)
+.env
+.env.*
+!.env.example
+
+# Git
+.git
+.gitignore
+
+# IDE & OS
+.idea
+.vscode
+.DS_Store
+
+# Docs & misc
+README.md
+LICENSE
+*.md
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
