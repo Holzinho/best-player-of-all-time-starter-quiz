@@ -154,6 +154,13 @@ docker pull ghcr.io/holzinho/best-player-of-all-time-starter-quiz:latest
 docker run -p 3000:3000 --env-file .env ghcr.io/holzinho/best-player-of-all-time-starter-quiz:latest
 ```
 
+### Verfügbare Image-Tags
+
+| Tag | Beschreibung |
+|-----|--------------|
+| `:latest` | Neueste Version |
+| `:1.0.0` | Feste Version (Semver) |
+
 ### Image selbst bauen
 
 ```bash
@@ -169,52 +176,6 @@ cp .env.example .env
 
 docker compose up -d
 ```
-
----
-
-## Automatische Veröffentlichung (Semver)
-
-**Du musst nichts manuell machen.** GitHub Actions baut und veröffentlicht das Docker-Image automatisch.
-
-| Aktion | Ergebnis |
-|--------|----------|
-| Push auf `main` | Image wird gebaut und als `:latest` gepusht |
-| Tag `v1.0.0` pushen | Image wird gebaut und als `:latest`, `:v1.0.0`, `:1.0.0` gepusht + GitHub Release erstellt |
-
-### Neues Release erstellen (Semver)
-
-```bash
-# Version in package.json erhöhen (patch/minor/major)
-npm run version:patch   # 0.1.0 → 0.1.1
-npm run version:minor   # 0.1.0 → 0.2.0
-npm run version:major   # 0.1.0 → 1.0.0
-
-# Tag pushen – triggert automatisch Build + Release
-git push origin --tags
-```
-
-Oder manuell:
-
-```bash
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-→ Docker-Image und GitHub Release werden automatisch erstellt.
-
-### Verfügbare Image-Tags
-
-| Tag | Beschreibung |
-|-----|--------------|
-| `:latest` | Immer der neueste Build (main oder letzter Tag) |
-| `:v1.0.0` | Exakte Version |
-| `:1.0.0` | Version ohne `v` (für `docker pull`) |
-
-### Einmalig: Package öffentlich machen
-
-1. GitHub → **Packages** (rechts in der Repo-Ansicht)
-2. Package `best-player-of-all-time-starter-quiz` öffnen
-3. **Package settings** → **Change visibility** → **Public**
 
 ---
 
