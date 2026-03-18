@@ -100,14 +100,22 @@ body {
 }
 
 .quiz-select {
-  padding: 0.625rem 0.875rem;
+  padding: 0.625rem 2rem 0.625rem 0.875rem;
   font-size: 0.9375rem;
+  font-family: inherit;
   background: var(--quiz-surface);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
   border: 1px solid var(--quiz-border);
   border-radius: var(--quiz-radius-sm);
   color: var(--quiz-text);
   cursor: pointer;
   transition: border-color var(--quiz-transition);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  min-height: 2.75rem;
 }
 
 .quiz-select:hover,
