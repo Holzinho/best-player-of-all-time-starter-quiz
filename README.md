@@ -130,20 +130,35 @@ vercel --prod   # Production
 
 ## Docker
 
-### Build & Run
+### Pre-built Image (empfohlen)
+
+Das Image ist auf GitHub Container Registry verfügbar:
+
+```bash
+# Neueste Version
+docker pull ghcr.io/holzinho/best-player-of-all-time-starter-quiz:latest
+
+# Oder feste Version (Semver)
+docker pull ghcr.io/holzinho/best-player-of-all-time-starter-quiz:1.0.0
+
+docker run -p 3000:3000 \
+  -e QUIZ_API_BASE_URL=https://bestplayerofalltime.com \
+  -e QUIZ_API_TOKEN=your_token \
+  ghcr.io/holzinho/best-player-of-all-time-starter-quiz:latest
+```
+
+Mit `.env`-Datei:
+
+```bash
+docker pull ghcr.io/holzinho/best-player-of-all-time-starter-quiz:latest
+docker run -p 3000:3000 --env-file .env ghcr.io/holzinho/best-player-of-all-time-starter-quiz:latest
+```
+
+### Image selbst bauen
 
 ```bash
 docker build -t best-player-quiz .
 docker run -p 3000:3000 --env-file .env best-player-quiz
-```
-
-### Env vars (no .env file)
-
-```bash
-docker run -p 3000:3000 \
-  -e QUIZ_API_BASE_URL=https://bestplayerofalltime.com \
-  -e QUIZ_API_TOKEN=your_token \
-  best-player-quiz
 ```
 
 ### Docker Compose
@@ -154,6 +169,52 @@ cp .env.example .env
 
 docker compose up -d
 ```
+
+---
+
+## Automatische Veröffentlichung (Semver)
+
+**Du musst nichts manuell machen.** GitHub Actions baut und veröffentlicht das Docker-Image automatisch.
+
+| Aktion | Ergebnis |
+|--------|----------|
+| Push auf `main` | Image wird gebaut und als `:latest` gepusht |
+| Tag `v1.0.0` pushen | Image wird gebaut und als `:latest`, `:v1.0.0`, `:1.0.0` gepusht + GitHub Release erstellt |
+
+### Neues Release erstellen (Semver)
+
+```bash
+# Version in package.json erhöhen (patch/minor/major)
+npm run version:patch   # 0.1.0 → 0.1.1
+npm run version:minor   # 0.1.0 → 0.2.0
+npm run version:major   # 0.1.0 → 1.0.0
+
+# Tag pushen – triggert automatisch Build + Release
+git push origin --tags
+```
+
+Oder manuell:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+→ Docker-Image und GitHub Release werden automatisch erstellt.
+
+### Verfügbare Image-Tags
+
+| Tag | Beschreibung |
+|-----|--------------|
+| `:latest` | Immer der neueste Build (main oder letzter Tag) |
+| `:v1.0.0` | Exakte Version |
+| `:1.0.0` | Version ohne `v` (für `docker pull`) |
+
+### Einmalig: Package öffentlich machen
+
+1. GitHub → **Packages** (rechts in der Repo-Ansicht)
+2. Package `best-player-of-all-time-starter-quiz` öffnen
+3. **Package settings** → **Change visibility** → **Public**
 
 ---
 
