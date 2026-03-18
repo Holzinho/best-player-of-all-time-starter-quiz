@@ -1,80 +1,123 @@
 # Best Player of All Time Quiz
 
-Ein Quiz über die besten Spieler aller Zeiten. Next.js 15 + TypeScript.
+A production-ready quiz app that uses the [Best Player of All Time](https://bestplayerofalltime.com) API. Reference implementation for football, basketball, and padel trivia.
+
+**Live:** [quiz.bestplayerofalltime.com](https://quiz.bestplayerofalltime.com)
 
 ---
 
-## Quick Start (3 Schritte)
+## What It Does
+
+- **Start screen** – Choose sport, language, difficulty, and question count
+- **Quiz flow** – One question at a time, shuffled answers, instant feedback
+- **Explanations** – Each question shows an explanation after answering
+- **Summary** – Final score with option to restart
+
+The app fetches questions from the external API via a **secure server-side proxy**. The Bearer token is never exposed to the browser.
+
+---
+
+## Quick Start
 
 ```bash
-# 1. Repo klonen
 git clone https://github.com/Holzinho/best-player-of-all-time-starter-quiz.git
 cd best-player-of-all-time-starter-quiz
 
-# 2. Env-Variablen setzen
 cp .env.example .env
-# .env bearbeiten und Werte eintragen (siehe unten)
+# Edit .env: set QUIZ_API_BASE_URL and QUIZ_API_TOKEN
 
-# 3. Lokal starten
 npm install
 npm run dev
 ```
 
-→ **http://localhost:3000**
+→ http://localhost:3000
 
 ---
 
-## Lokales Setup
+## Environment Variables
 
-### Voraussetzungen
+### Required
 
-- **Node.js** 18+ (empfohlen: 20 LTS)
-- **npm** oder **pnpm**
+| Variable | Description |
+|----------|--------------|
+| `QUIZ_API_BASE_URL` | API base URL, e.g. `https://bestplayerofalltime.com` |
+| `QUIZ_API_TOKEN` | Bearer token. Request at [bestplayerofalltime.com/token-anfragen](https://bestplayerofalltime.com/token-anfragen) |
 
-### Schritte
+### Optional (client-safe)
 
-1. **Abhängigkeiten installieren**
-   ```bash
-   npm install
-   ```
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `NEXT_PUBLIC_APP_NAME` | App name on start screen | "Best Player of All Time Quiz" |
+| `NEXT_PUBLIC_DEFAULT_SPORT` | `football` \| `basketball` \| `padel` | `football` |
+| `NEXT_PUBLIC_DEFAULT_LANG` | `en` \| `de` \| `fr` | `en` |
+| `NEXT_PUBLIC_DEFAULT_COUNT` | Questions per quiz (1–50) | `10` |
 
-2. **Umgebungsvariablen**
+---
+
+## Secure Token Handling
+
+**The Bearer token must never reach the browser.**
+
+### Architecture
+
+1. **Frontend** calls the internal route: `GET /api/questions?lang=de&sport=football&count=10`
+2. **Internal route** (`src/app/api/questions/route.ts`) runs on the server
+3. **Server** reads `QUIZ_API_TOKEN` from `process.env` (server-only)
+4. **Server** calls the external API with `Authorization: Bearer <token>`
+5. **Server** returns the response to the frontend
+
+The token is never in:
+- `NEXT_PUBLIC_*` env vars
+- Client-side JavaScript
+- HTML
+- Network requests from the browser
+
+### Verification
+
+- Search the codebase for `QUIZ_API_TOKEN` – it only appears in the API route
+- Inspect browser Network tab – requests to the external API are not visible; only `/api/questions` is called
+
+---
+
+## Local Development
+
+### Prerequisites
+
+- Node.js 18+
+- npm or pnpm
+
+### Setup
+
+1. Copy env template:
    ```bash
    cp .env.example .env
    ```
-   Öffne `.env` und trage die benötigten Werte ein (siehe [Env-Variablen](#umgebungsvariablen)).
 
-3. **Entwicklungsserver starten**
+2. Add your API token to `.env`:
+   ```
+   QUIZ_API_BASE_URL=https://bestplayerofalltime.com
+   QUIZ_API_TOKEN=your_token_here
+   ```
+
+3. Install and run:
    ```bash
+   npm install
    npm run dev
    ```
 
-4. **Produktions-Build testen**
-   ```bash
-   npm run build
-   npm start
-   ```
+4. Open http://localhost:3000
 
 ---
 
 ## Vercel Deployment
 
-### Einmalige Einrichtung
+1. **Import** the repo: [vercel.com](https://vercel.com) → New Project → Import
+2. **Environment variables**: Project Settings → Environment Variables
+   - `QUIZ_API_BASE_URL` = `https://bestplayerofalltime.com`
+   - `QUIZ_API_TOKEN` = your token
+3. **Deploy** – each push to `main` triggers a deploy
 
-1. **Projekt bei Vercel verbinden**
-   - [vercel.com](https://vercel.com) → New Project → Import Git Repository
-   - Repo auswählen und importieren
-
-2. **Env-Variablen in Vercel setzen**
-   - Project Settings → Environment Variables
-   - Alle Variablen aus `.env.example` eintragen (Werte für Production)
-   - `NEXT_PUBLIC_*` werden clientseitig exponiert – keine Secrets dort!
-
-3. **Deploy**
-   - Jeder Push auf `main` triggert automatisch einen Deploy
-   - Oder manuell: `vercel --prod`
-
-### Vercel CLI (optional)
+### Vercel CLI
 
 ```bash
 npm i -g vercel
@@ -87,114 +130,68 @@ vercel --prod   # Production
 
 ## Docker
 
-### Produktions-Image bauen und starten
+### Build & Run
 
 ```bash
-# Image bauen
 docker build -t best-player-quiz .
-
-# Container starten (Port 3000)
 docker run -p 3000:3000 --env-file .env best-player-quiz
 ```
 
-Ohne `.env`-Datei (Werte direkt übergeben):
+### Env vars (no .env file)
 
 ```bash
 docker run -p 3000:3000 \
-  -e NEXT_PUBLIC_APP_URL=https://your-domain.com \
+  -e QUIZ_API_BASE_URL=https://bestplayerofalltime.com \
+  -e QUIZ_API_TOKEN=your_token \
   best-player-quiz
 ```
 
-### Docker Compose (optional)
+### Docker Compose
 
 ```bash
-# Mit .env aus dem Projektverzeichnis
+cp .env.example .env
+# Edit .env with your token
+
 docker compose up -d
-
-# Logs anzeigen
-docker compose logs -f
-```
-
-Siehe `docker-compose.yml` für die Konfiguration.
-
----
-
-## Umgebungsvariablen
-
-| Variable | Beschreibung | Erforderlich |
-|----------|--------------|--------------|
-| `NEXT_PUBLIC_APP_URL` | Basis-URL der App (z.B. `https://quiz.example.com`). Wird für Links und Redirects genutzt. | Ja (Production) |
-| `API_KEY` | Optional: API-Key für externe Dienste (z.B. Spielerdaten). | Nein |
-| `DATABASE_URL` | Optional: Datenbank-URL, falls Persistenz genutzt wird. | Nein |
-| `AUTH_SECRET` | Optional: Geheimer Schlüssel für Sessions/CSRF. Mind. 32 Zeichen. | Nein (empfohlen bei Auth) |
-
-### Client vs. Server
-
-- **`NEXT_PUBLIC_*`**: Werden im Browser exponiert. **Keine Secrets** hier.
-- **Ohne Präfix** (z.B. `API_KEY`, `AUTH_SECRET`): Nur serverseitig verfügbar, sicher für Secrets.
-
----
-
-## Sichere Token-Behandlung
-
-### Grundregeln
-
-1. **`.env` nie committen** – steht in `.gitignore`.
-2. **`.env.example`** – nur Platzhalter/Beispiele, keine echten Secrets.
-3. **Secrets nur serverseitig** – keine API-Keys in `NEXT_PUBLIC_*`.
-
-### Empfohlene Vorgehensweise
-
-| Umgebung | Vorgehen |
-|----------|----------|
-| **Lokal** | `.env` lokal anlegen, Werte aus Passwort-Manager oder Team-Docs. |
-| **Vercel** | Environment Variables in Project Settings setzen. |
-| **Docker** | `--env-file .env` oder `-e VAR=value`; `.env` nicht ins Image kopieren. |
-
-### Secret-Generierung
-
-```bash
-# 32-Byte Secret für AUTH_SECRET
-openssl rand -base64 32
-```
-
-### Checkliste vor Production
-
-- [ ] Keine Secrets in `NEXT_PUBLIC_*`
-- [ ] `AUTH_SECRET` gesetzt, falls Auth genutzt wird
-- [ ] `NEXT_PUBLIC_APP_URL` auf die echte Domain gesetzt
-- [ ] `.env` nicht im Repo
-
----
-
-## Projektstruktur
-
-```
-├── src/
-│   └── app/           # Next.js App Router
-│       ├── layout.tsx
-│       ├── page.tsx
-│       └── globals.css
-├── .env.example       # Vorlage für Umgebungsvariablen
-├── Dockerfile        # Produktions-Image
-├── docker-compose.yml
-├── next.config.ts
-└── package.json
 ```
 
 ---
 
-## Skripte
+## Project Structure
 
-| Befehl | Beschreibung |
-|--------|--------------|
-| `npm run dev` | Dev-Server (Hot Reload) |
-| `npm run build` | Produktions-Build |
-| `npm start` | Produktions-Server |
-| `npm run lint` | ESLint |
+```
+src/
+├── app/
+│   ├── api/questions/route.ts   # Secure proxy to external API
+│   ├── layout.tsx
+│   ├── page.tsx
+│   └── globals.css
+├── components/
+│   ├── QuizFlow.tsx             # Main quiz state machine
+│   ├── QuizStart.tsx            # Config + start CTA
+│   ├── QuizQuestion.tsx         # Question card + answers
+│   └── QuizSummary.tsx          # Final score
+├── lib/
+│   ├── quiz-config.ts           # Sports, languages, defaults
+│   └── shuffle.ts               # Answer shuffle (preserves correct mapping)
+└── types/
+    └── quiz.ts                  # API types
+```
 
 ---
 
-## Lizenz
+## API Reference
 
-MIT – siehe [LICENSE](LICENSE).
+The app uses the Best Player of All Time API:
+
+- **Endpoint:** `GET /api/questions`
+- **Auth:** Bearer token (via server-side proxy)
+- **Params:** `lang`, `sport`, `difficulty`, `count`
+
+See [bestplayerofalltime.com](https://bestplayerofalltime.com) for full API docs.
+
+---
+
+## License
+
+MIT – see [LICENSE](LICENSE).
