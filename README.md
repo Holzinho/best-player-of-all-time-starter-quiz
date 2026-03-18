@@ -132,7 +132,7 @@ vercel --prod   # Production
 
 ### Pre-built Image (empfohlen)
 
-Das Image ist auf GitHub Container Registry verfügbar:
+Das Image ist auf GitHub Container Registry (ghcr.io) verfügbar:
 
 ```bash
 # Neueste Version
