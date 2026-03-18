@@ -1,0 +1,18 @@
+# =============================================================================
+# Best Player of All Time Quiz – Docker Compose (optional)
+# =============================================================================
+# Usage:  docker compose up -d
+# Logs:   docker compose logs -f
+# Stop:   docker compose down
+# =============================================================================
+# Requires: .env file in project root (cp .env.example .env)
+# =============================================================================
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    restart: unless-stopped
