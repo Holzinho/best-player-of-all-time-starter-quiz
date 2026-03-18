@@ -7,6 +7,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build:
@@ -20,13 +21,19 @@ jobs:
       - name: Set up Docker tags
         id: meta
         run: |
-          OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          IMAGE_BASE="${{ env.REGISTRY }}/${OWNER_LOWER}/best-player-of-all-time-starter-quiz"
+          REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          IMAGE_BASE="${{ env.REGISTRY }}/${REPO_LOWER}"
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
             VERSION=${GITHUB_REF#refs/tags/v}
-            echo "tags=${IMAGE_BASE}:latest,${IMAGE_BASE}:${{ github.ref_name }},${IMAGE_BASE}:${VERSION}" >> $GITHUB_OUTPUT
+            echo "tags<<EOF" >> $GITHUB_OUTPUT
+            echo "${IMAGE_BASE}:latest" >> $GITHUB_OUTPUT
+            echo "${IMAGE_BASE}:${{ github.ref_name }}" >> $GITHUB_OUTPUT
+            echo "${IMAGE_BASE}:${VERSION}" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
           else
-            echo "tags=${IMAGE_BASE}:latest" >> $GITHUB_OUTPUT
+            echo "tags<<EOF" >> $GITHUB_OUTPUT
+            echo "${IMAGE_BASE}:latest" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
           fi
 
       - name: Login to GHCR
